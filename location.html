@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Детали места — Куда сходим?</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🗺️</span> Куда сходим?
+      </a>
+      <button id="themeToggle" class="btn btn-outline btn-sm">🌙</button>
+    </div>
+  </header>
+
+  <main class="detail-main" id="detailContent">
+    <!-- Заполняется JS -->
+  </main>
+
+  <script src="js/data.js"></script>
+  <script>
+    // Простой скрипт для отображения деталей и чек‑листа
+    const params = new URLSearchParams(window.location.search);
+    const locationId = parseInt(params.get('id'));
+    const location = window.locationsData.find(l => l.id === locationId);
+
+    if (!location) {
+      document.getElementById('detailContent').innerHTML = '<h2>Локация не найдена</h2><a href="index.html">← На главную</a>';
+    } else {
+      renderDetailPage(location);
+    }
+
+    function renderDetailPage(loc) {
+      const isMountain = loc.category === 'mountain' || loc.isMountain;
+      const isPool = loc.category === 'pool';
+      const favs = JSON.parse(localStorage.getItem('travelFavorites') || '[]');
+      const isFav = favs.includes(loc.id);
+      const checklistState = JSON.parse(localStorage.getItem(`checklist_${loc.id}`) || '{}');
+
+      const mountainItems = ['💧 Вода (2-3 л)', '⛺ Палатка', '🛏️ Спальник', '🍞 Еда', '🔋 Повербанк', '🔦 Фонарик', '🩹 Аптечка', '🔥 Спички', '🗺️ Карта/GPS', '🦟 Средство от насекомых'];
+      const poolItems = ['🩱 Купальник/плавки', '🩴 Шлёпанцы', '🧴 Солнцезащитный крем', '🕶️ Очки', '🧣 Полотенце', '💧 Бутылка воды'];
+
+      const checklist = isMountain ? mountainItems : (isPool ? poolItems : []);
+      let checklistHTML = '';
+      if (checklist.length) {
+        checklistHTML = `
+          <div class="checklist-container">
+            <h3>✅ Чек‑лист "Что взять"</h3>
+            <ul class="checklist">
+              ${checklist.map((item, idx) => {
+                const checked = checklistState[idx] === true ? 'checked' : '';
+                return `<li>
+                  <label class="checklist-item">
+                    <input type="checkbox" class="checklist-checkbox" data-index="${idx}" ${checked}>
+                    <span>${item}</span>
+                  </label>
+                </li>`;
+              }).join('')}
+            </ul>
+          </div>`;
+      }
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="detail-hero ${loc.bgClass}">
+          <span class="detail-icon">${loc.icon}</span>
+        </div>
+        <div class="detail-body">
+          <button class="btn-favorite detail-fav ${isFav ? 'active' : ''}" data-id="${loc.id}">${isFav ? '❤️' : '🤍'}</button>
+          <h1>${loc.name}</h1>
+          <div class="card-rating">⭐ ${loc.rating}</div>
+          <p class="detail-desc">${loc.desc}</p>
+          <div class="modal-info-grid">
+            <div>📍 ${loc.address}</div>
+            <div>🕐 ${loc.hours}</div>
+            <div>💰 ${loc.price}</div>
+            <div>📞 ${loc.phone}</div>
+          </div>
+          ${loc.difficulty ? `<p><strong>Сложность:</strong> ${loc.difficulty} | 📏 ${loc.altitude || ''}</p>` : ''}
+          ${checklistHTML}
+        </div>
+        <a href="index.html" class="btn btn-outline" style="margin-top:20px;">← Назад к списку</a>
+      `;
+
+      // Обработчики чекбоксов
+      document.querySelectorAll('.checklist-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+          const idx = this.dataset.index;
+          const state = JSON.parse(localStorage.getItem(`checklist_${loc.id}`) || '{}');
+          state[idx] = this.checked;
+          localStorage.setItem(`checklist_${loc.id}`, JSON.stringify(state));
+        });
+      });
+
+      // Избранное
+      document.querySelector('.detail-fav').addEventListener('click', function() {
+        const id = parseInt(this.dataset.id);
+        let favs = JSON.parse(localStorage.getItem('travelFavorites') || '[]');
+        if (favs.includes(id)) {
+          favs = favs.filter(f => f !== id);
+          this.innerHTML = '🤍';
+          this.classList.remove('active');
+        } else {
+          favs.push(id);
+          this.innerHTML = '❤️';
+          this.classList.add('active');
+        }
+        localStorage.setItem('travelFavorites', JSON.stringify(favs));
+      });
+    }
+
+    // Тема
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDark = document.body.classList.contains('dark-theme');
+      localStorage.setItem('travelTheme', isDark ? 'dark' : 'light');
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+    if (localStorage.getItem('travelTheme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      themeToggle.textContent = '☀️';
+    }
+  </script>
+</body>
+</html>

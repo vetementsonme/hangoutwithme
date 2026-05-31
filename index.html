@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Куда сходим? — Путеводитель</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a class="logo" onclick="resetAll(); return false;">
+                <span class="logo-icon">🗺️</span>
+                <span class="logo-text">Куда сходим?</span>
+            </a>
+            <div class="header-actions">
+                <button class="btn btn-ghost" id="themeToggle">🌙</button>
+                <button class="btn btn-ghost" onclick="document.querySelector('.weather-section').scrollIntoView({behavior:'smooth'})">🌤️ Погода</button>
+                <button class="btn btn-primary" id="profileBtn">👤 Войти</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="weather-section">
+        <div class="weather-panel">
+            <div class="weather-main">
+                <div class="weather-icon" id="weatherIcon">☀️</div>
+                <div class="weather-info">
+                    <div class="weather-temp" id="weatherTemp">--°</div>
+                    <div class="weather-city">Москва</div>
+                    <div class="weather-desc" id="weatherDesc">Ясно</div>
+                    <div class="weather-meta">
+                        <span class="meta-item">💧 <span id="humidity">45%</span></span>
+                        <span class="meta-item">💨 <span id="wind">12 км/ч</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="forecast-row" id="forecastRow"></div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <h2 class="section-title">📍 Куда сегодня?</h2>
+        <div class="filter-section">
+            <div class="filter-group" id="categoryFilters">
+                <button class="filter-chip active" data-category="all">Все</button>
+                <button class="filter-chip" data-category="cafe">☕ Кафе</button>
+                <button class="filter-chip" data-category="restaurant">🍽️ Ресторан</button>
+                <button class="filter-chip" data-category="bar">🍸 Бар</button>
+                <button class="filter-chip" data-category="pool">🏊 Бассейн</button>
+                <button class="filter-chip" data-category="mountain">⛰️ Горы</button>
+                <button class="filter-chip" data-category="park">🌳 Парк</button>
+                <button class="filter-chip" data-category="museum">🏛️ Музей</button>
+            </div>
+            <div class="filter-group" id="moodFilters">
+                <button class="filter-chip mood-chip" data-mood="family">👨‍👩‍👧‍👦 Семья</button>
+                <button class="filter-chip mood-chip" data-mood="romantic">💑 Романтика</button>
+                <button class="filter-chip mood-chip" data-mood="party">🎉 Компания</button>
+                <button class="filter-chip mood-chip" data-mood="active">⚡ Активный</button>
+            </div>
+            <select id="budgetFilter" class="filter-select">
+                <option value="all">💰 Любой бюджет</option>
+                <option value="low">Низкий</option>
+                <option value="medium">Средний</option>
+                <option value="high">Высокий</option>
+            </select>
+        </div>
+        <div class="locations-grid" id="locationsGrid"></div>
+    </main>
+
+    <div class="chat-widget">
+        <div class="chat-button" id="chatToggle">💬</div>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-bot-msg">🤖 Привет! Спроси меня о погоде, местах или что взять с собой.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Напишите сообщение...">
+                <button class="chat-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <!-- Модальное окно авторизации -->
+    <div class="modal-overlay" id="authModal" style="display:none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">✕</button>
+            <h2 id="authTitle">Вход</h2>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <input type="text" id="authUsername" placeholder="Имя пользователя" required>
+                <input type="password" id="authPassword" placeholder="Пароль" required>
+                <input type="password" id="authConfirmPassword" placeholder="Подтвердите пароль" style="display:none;">
+                <button type="submit" class="btn btn-primary" style="width:100%;">Продолжить</button>
+            </form>
+            <p style="margin-top:12px; text-align:center;">
+                <span id="authSwitchText">Нет аккаунта?</span>
+                <button class="btn btn-ghost" onclick="switchAuthMode()">Зарегистрироваться</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- Модальное окно профиля -->
+    <div class="modal-overlay" id="profileModal" style="display:none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProfileModal()">✕</button>
+            <div id="profileContent"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно смены аватара -->
+    <div class="modal-overlay" id="avatarModal" style="display:none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAvatarModal()">✕</button>
+            <h2>Выберите аватар</h2>
+            <div class="avatar-grid" id="avatarGrid"></div>
+            <button class="btn btn-primary" style="margin-top:20px; width:100%;" onclick="closeAvatarModal()">Готово</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
